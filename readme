@@ -23,10 +23,11 @@ wget -O alpine.iso https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/x86_64/a
 qemu-img create -f qcow2 alpine.qcow2 15G
 
 7. Boot it up: Here we're using 1024MB of memory and 2 cpus
+
 ```Bash
 qemu-system-x86_64 \
   -machine q35 \
-  -m 1024 \
+  -m 2048 \
   -smp cpus=2 \
   -cpu qemu64 \
   -drive if=pflash,format=raw,readonly=on,file=$PREFIX/share/qemu/edk2-x86_64-code.fd \
@@ -37,13 +38,28 @@ qemu-system-x86_64 \
   -nographic
 ```
 
+- This install the **non-graphical version**, this means that we will only use the terminal
+
 > you can get number of useable cpus using `nproc` and total memory using `free -m | grep -oP '\d+' | head -n 1`
+```Bash
+echo -e "nameserver 192.168.1.1\nnameserver 1.1.1.1" > /etc/resolv.conf
+```
+
+```Bash
+   echo 'https://dl-cdn.alpinelinux.org/alpine/v3.22/main' >> /etc/apk/repositories
+   echo 'https://dl-cdn.alpinelinux.org/alpine/v3.22/community' >> /etc/apk/repositories
+```
+
+```
+setup-alpine
+```
 
 8. Login with username `root` (no password)
-
+```Bash
 apk update
-
 apk add docker
+```
+
 
 service docker start
 service docker status
