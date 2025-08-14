@@ -1,32 +1,43 @@
 req - 3gm ram
 1. Open Termux on your Android device.
-    
 
-
-pkg update -y && pkg upgrade -y
 2. Update and upgrade the packages by running the following command:
-pkg install wget qemu-system-x86-64-headless qemu-utils -y
-3. Create a seperate directory:
-`mkdir alpine && cd alpine`
 
-4. Download Alpine Linux (virt optimized) ISO:
-# https://www.alpinelinux.org/downloads/
+```Bash
+pkg update -y && pkg upgrade -y
+pkg install wget qemu-system-x86-64-headless qemu-utils -y
+```
+
+3. Create a seperate directory:
+```Bash
+mkdir alpine && cd alpine
+```
+4. Download Alpine Linux (virt optimized) ISO: https://www.alpinelinux.org/downloads/
+
+```Bash
 wget -O alpine.iso https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/x86_64/alpine-virt-3.22.1-x86_64.iso
+```
 
 6. Create disk (note it won't actually take 15GB of space, more like 500-600MB):
 
 qemu-img create -f qcow2 alpine.qcow2 15G
 
 7. Boot it up: Here we're using 1024MB of memory and 2 cpus
+```Bash
+qemu-system-x86_64 \
+  -machine q35 \
+  -m 1024 \
+  -smp cpus=2 \
+  -cpu qemu64 \
+  -drive if=pflash,format=raw,readonly=on,file=$PREFIX/share/qemu/edk2-x86_64-code.fd \
+  -netdev user,id=n1,dns=1.1.1.1,hostfwd=tcp::2222-:22 \
+  -device virtio-net,netdev=n1 \
+  -cdrom alpine.iso \
+  -drive file=alpine.qcow2,if=virtio \
+  -nographic
+```
 
-qemu-system-x86_64 -machine q35 -m 1024 -smp cpus=2 -cpu qemu64 -drive if=pflash,format=raw,read-only=on,file=$PREFIX/share/qemu/edk2-x86_64-code.fd -netdev user,id=n1,dns=8.8.8.8,hostfwd=tcp::2222-:22 -device virtio-net,netdev=n1 -cdrom alpine.iso -nographic alpine.img
-
-or
-
-qemu-system-x86_64 -m 512 -netdev user,id=n1,hostfwd=tcp::2222-:22 -device virtio-net,netdev=n1  -cdrom alpine.iso -nographic alpine.qcow2
-
-you can get number of useable cpus using `nproc` and total memory using `free -m | grep -oP '\d+' | head -n 1`
-
+> you can get number of useable cpus using `nproc` and total memory using `free -m | grep -oP '\d+' | head -n 1`
 
 8. Login with username `root` (no password)
 
@@ -38,10 +49,23 @@ service docker start
 service docker status
 
 poweroff
+```Bash
+echo "qemu-system-x86_64 \\
+  -machine q35 \\
+  -m 1024 \\
+  -smp cpus=2 \\
+  -cpu qemu64 \\
+  -drive if=pflash,format=raw,readonly=on,file=\$PREFIX/share/qemu/edk2-x86_64-code.fd \\
+  -netdev user,id=n1,dns=1.1.1.1,hostfwd=tcp::2222-:22 \\
+  -device virtio-net,netdev=n1 \\
+  -drive file=alpine.qcow2,if=virtio \\
+  -nographic" >> ~/alpine/run_qemu.sh
 
-echo "qemu-system-x86_64 -m 512 -netdev user,id=n1,hostfwd=tcp::2222-:22 -device virtio-net,netdev=n1 -nographic alpine.qcow2" >> ~/alpine/run_qemu.sh
+```
 
+```Bash
 chmod +x run_qemu.sh
+```
 
 bash run_qemu.sh
 
