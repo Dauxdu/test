@@ -23,7 +23,7 @@ qemu-system-x86_64 \
   -smp 2 \
   -m 1G \
   -device virtio-net,netdev=n1 \
-  -netdev user,id=n1,dns=10.0.8.4,1.1.1.1,8.8.8.8,9.9.9.9,hostfwd=tcp::2222-:22 \
+  -netdev user,id=n1,dns=10.0.8.4,hostfwd=tcp::2222-:22 \
   -drive if=pflash,format=raw,readonly=on,file=$PREFIX/share/qemu/edk2-x86_64-code.fd \
   -drive file=alpine.qcow2,if=virtio \
   -cdrom alpine.iso \
