@@ -22,10 +22,11 @@ qemu-system-x86_64 \
   -cpu qemu64 \
   -smp 4 \
   -m 2048 \
+  -drive if=pflash,format=raw,readonly=on,file=$PREFIX/share/qemu/edk2-x86_64-code.fd \
   -drive file=alpine.qcow2,if=virtio \
-  -netdev user,id=n1,hostfwd=tcp::2222-:22 \
   -device virtio-net,netdev=n1 \
-  -cdrom alpine.iso -boot d \
+  -netdev user,id=n1,hostfwd=tcp::2222-:22 \
+  -cdrom alpine.iso \
   -nographic
 ```
 
