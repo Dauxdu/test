@@ -20,9 +20,8 @@ qemu-img create -f qcow2 alpine.qcow2 15G
 qemu-system-x86_64 \
   -machine q35 \
   -cpu qemu64 \
-  -smp 4 \
-  -boot d\
-  -m 2G \
+  -smp 2 \
+  -m 1G \
   -device virtio-net,netdev=n1 \
   -netdev user,id=n1,hostfwd=tcp::2222-:22 \
   -drive if=pflash,format=raw,readonly=on,file=$PREFIX/share/qemu/edk2-x86_64-code.fd \
