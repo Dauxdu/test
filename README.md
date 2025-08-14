@@ -33,7 +33,11 @@ qemu-system-x86_64 \
 > you can get number of useable cpus using `nproc` and total memory using `free -m | grep -oP '\d+' | head -n 1`
 
 ```Bash
-   echo 'https://dl-cdn.alpinelinux.org/alpine/v3.22/main\nhttps://dl-cdn.alpinelinux.org/alpine/v3.22/community' > /etc/apk/repositories
+echo -e "nameserver <YOUT_LOCAL_GATEWAY>\nnameserver 1.1.1.1" > /etc/resolv.conf
+```
+
+```Bash
+echo -e 'https://dl-cdn.alpinelinux.org/alpine/v3.22/main\nhttps://dl-cdn.alpinelinux.org/alpine/v3.22/community' > /etc/apk/repositories
 ```
 
 ```
