@@ -1,48 +1,39 @@
-req - 3gm ram
-1. Open Termux on your Android device.
-
-2. Update and upgrade the packages by running the following command:
-
 ```Bash
 pkg update -y && pkg upgrade -y
 pkg install wget qemu-system-x86-64-headless qemu-utils -y
 ```
 
-3. Create a seperate directory:
 ```Bash
 mkdir alpine && cd alpine
 ```
 4. Download Alpine Linux (virt optimized) ISO: https://www.alpinelinux.org/downloads/
 
 ```Bash
-wget -O alpine.iso https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/x86_64/alpine-virt-3.22.1-x86_64.iso
+wget -O alpine.iso <YOUT_VIRTUAL_ISO_URL>
 ```
 
-6. Create disk (note it won't actually take 15GB of space, more like 500-600MB):
-
+```Bash
 qemu-img create -f qcow2 alpine.qcow2 15G
-
-7. Boot it up: Here we're using 1024MB of memory and 2 cpus
+```
 
 ```Bash
 qemu-system-x86_64 \
   -machine q35 \
-  -m 2048 \
-  -smp cpus=2 \
   -cpu qemu64 \
-  -drive if=pflash,format=raw,readonly=on,file=$PREFIX/share/qemu/edk2-x86_64-code.fd \
-  -netdev user,id=n1,dns=1.1.1.1,hostfwd=tcp::2222-:22 \
-  -device virtio-net,netdev=n1 \
-  -cdrom alpine.iso \
+  -smp 4 \
+  -m 2048 \
   -drive file=alpine.qcow2,if=virtio \
+  -netdev user,id=n1,hostfwd=tcp::2222-:22 \
+  -device virtio-net,netdev=n1 \
+  -cdrom alpine.iso -boot d \
   -nographic
 ```
 
-- This install the **non-graphical version**, this means that we will only use the terminal
 
 > you can get number of useable cpus using `nproc` and total memory using `free -m | grep -oP '\d+' | head -n 1`
+
 ```Bash
-echo -e "nameserver 192.168.1.1\nnameserver 1.1.1.1" > /etc/resolv.conf
+echo -e "nameserver <YOUT_LOCAL_DNS>\nnameserver 1.1.1.1" > /etc/resolv.conf
 ```
 
 ```Bash
@@ -60,31 +51,31 @@ apk update
 apk add docker
 ```
 
-
+```Bash
 service docker start
+rc-update add docker
 service docker status
+```
 
+```Bash
 poweroff
+```
+
 ```Bash
 echo "qemu-system-x86_64 \\
   -machine q35 \\
-  -m 1024 \\
-  -smp cpus=2 \\
   -cpu qemu64 \\
-  -drive if=pflash,format=raw,readonly=on,file=\$PREFIX/share/qemu/edk2-x86_64-code.fd \\
-  -netdev user,id=n1,dns=1.1.1.1,hostfwd=tcp::2222-:22 \\
-  -device virtio-net,netdev=n1 \\
+  -smp 4 \\
+  -m 2048 \\
   -drive file=alpine.qcow2,if=virtio \\
+  -netdev user,id=n1,hostfwd=tcp::2222-:22 \\
+  -device virtio-net,netdev=n1 \\
   -nographic" >> ~/alpine/run_qemu.sh
-
 ```
 
 ```Bash
 chmod +x run_qemu.sh
 ```
-
+```Bash
 bash run_qemu.sh
-
-service docker start
-rc-update add docker
-service docker status
+```
